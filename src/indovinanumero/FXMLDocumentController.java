@@ -47,12 +47,12 @@ public class FXMLDocumentController {
 
     @FXML
     void handleNuova(ActionEvent event) {
-
+        //Nuova partita
     }
 
     @FXML
     void handleProva(ActionEvent event) {
-
+        //Pulsante di prova del numero
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
