@@ -19,9 +19,18 @@ public class IndovinaNumero extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
+        
+        FXMLLoader loader=new FXMLLoader(getClass().getResource("FXMLDocument.fxml"));
+        Parent root = loader.load();
+        
+        FXMLDocumentController controller=loader.getController();
         
         Scene scene = new Scene(root);
+        
+        //Creo un'istanza del mio modello e la aggancio
+        //al Controller
+        Model model=new Model();
+        controller.setModel(model);
         
         stage.setScene(scene);
         stage.show();

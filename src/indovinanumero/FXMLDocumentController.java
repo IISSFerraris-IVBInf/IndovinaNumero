@@ -21,12 +21,8 @@ import javafx.scene.layout.HBox;
 
 public class FXMLDocumentController {
     
-    private final int NMAX=100;
-    private final int TMAX=7;
-    private int segreto; //numero pensato dal computer
-    private int tentativi; //tentativi già fatti
-    private boolean inGame; //se la partita è in corso
-
+    private Model model;
+    
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
 
@@ -55,15 +51,16 @@ public class FXMLDocumentController {
     void handleNuova(ActionEvent event) {
         //Nuova partita
          
-         this.segreto=(int)(Math.random()*NMAX)+1;
-         this.tentativi=0;
-         this.inGame=true;
+        model.newGame(); 
+        
          txtLog.clear();
          txtTentativo.setText("");
          btnNuova.setDisable(true);
          boxGioco.setDisable(false);
-         txtMax.setText(""+this.TMAX);
-         txtCurr.setText(""+this.tentativi);
+         txtMax.setText(""+model.getTMAX());
+         txtCurr.setText(""+model.getTentativi());
+         txtLog.setText("Indovina un numero compreso fra 1 e "+model.getNMAX());
+         
     }
 
     @FXML
@@ -79,38 +76,40 @@ public class FXMLDocumentController {
         {
             int num=Integer.parseInt(numS);
             //Numero intero
-            if (num<1||num>NMAX)
+            if (!model.valoreValido(num))
             {
-               txtLog.appendText("Devi inserire un numero compreso fra 1 e "+NMAX+"\n");
+               txtLog.appendText("Devi inserire un numero compreso fra 1 e "+model.getNMAX()+"\n");
                return; 
             }
             //A questo punto il numero inseriro è accettabile
             txtTentativo.setText("");
             txtTentativo.requestFocus();
             txtLog.appendText("Num inserito: "+num+" ");
-            this.tentativi++;
-            txtCurr.setText(""+this.tentativi);
-            if (num==segreto)
+            
+            
+            
+            int esito=model.tentativo(num);
+            txtCurr.setText(""+model.getTentativi());
+            
+            if (esito==0)
             {
-                txtLog.appendText("Bravo!! Hai indovinato in "+tentativi+" tentativi\nPartita terminata.\n");
-                this.inGame=false;
-                btnNuova.setDisable(false);
-                boxGioco.setDisable(true); 
+                txtLog.appendText("\nBravo!! Hai indovinato in "+model.getTentativi()+" tentativi\nPartita terminata.\n");
+                chiudiPartita();
                 return;
             }
-            if (num<segreto)
+            if (esito==-1)
             {
-                txtLog.appendText("Il numero inserito è minore di quello segreto.\n");
+                txtLog.appendText("\nIl numero inserito è minore di quello segreto.\n");
             }else
             {
-                txtLog.appendText("Il numero inserito è maggiore di quello segreto.\n");
+                txtLog.appendText("\nIl numero inserito è maggiore di quello segreto.\n");
             }
-            if (tentativi==TMAX)
+            if (!model.isInGame())
             {
-                txtLog.appendText("Hai perso!! Numero di tentativi esaurito.\nIl numero segreto era "+segreto+"\n");
-                this.inGame=false;
-                btnNuova.setDisable(false);
-                boxGioco.setDisable(true); 
+                //La partita è finita (vittoria o sconfitta)
+                if (esito!=0)
+                    txtLog.appendText("\nHai perso!! Numero di tentativi esaurito.\nIl numero segreto era "+model.getSegreto()+"\n");
+                chiudiPartita();
                 return;
             }
             
@@ -121,7 +120,16 @@ public class FXMLDocumentController {
         }
             
     }
-
+    /**
+     * Abilita e disabilita i pulsanti giusti
+     */
+    private void chiudiPartita()
+    {
+        //Chiudo la partita
+        btnNuova.setDisable(false);
+        boxGioco.setDisable(true); 
+    }
+    
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
         assert btnNuova != null : "fx:id=\"btnNuova\" was not injected: check your FXML file 'FXMLDocument.fxml'.";
@@ -131,7 +139,12 @@ public class FXMLDocumentController {
         assert txtTentativo != null : "fx:id=\"txtTentativo\" was not injected: check your FXML file 'FXMLDocument.fxml'.";
         assert txtLog != null : "fx:id=\"txtLog\" was not injected: check your FXML file 'FXMLDocument.fxml'.";
         
-        //mie variabili
-        inGame=false;
+        
     }
+
+    public void setModel(Model model) {
+        this.model = model;
+    }
+    
+    
 }
